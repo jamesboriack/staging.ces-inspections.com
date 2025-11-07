@@ -1,0 +1,70 @@
+<!doctype html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Scan Unit QR</title>
+<style>
+  body{margin:0;font:16px system-ui;background:#0b0f14;color:#e6edf3}
+  .wrap{max-width:720px;margin:0 auto;padding:24px}
+  video{width:100%;border-radius:12px;border:1px solid #223345;background:#000}
+  .mut{color:#9fb1c6}
+  .btn{display:inline-block;padding:10px 14px;border-radius:10px;border:1px solid #2a3a50;background:#132034;color:#e6edf3;text-decoration:none;margin-top:12px}
+</style>
+<div class="wrap">
+  <h2>Scan Unit QR</h2>
+  <div id="msg" class="mut">Align the QR code in view.</div>
+  <video id="v" autoplay playsinline muted></video>
+  <a class="btn" href="/nocode-main.php">Use No-Code / Rental instead</a>
+</div>
+<script>
+(async () => {
+  const msg = s => (document.getElementById('msg').textContent = s);
+  const v = document.getElementById('v');
+
+  if (!('BarcodeDetector' in window)) {
+    msg('QR scanning not supported on this device. Use No-Code / Rental.');
+    return;
+  }
+
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'}});
+    v.srcObject = stream;
+    const det = new BarcodeDetector({formats:['qr_code']});
+    const tick = async () => {
+      try {
+        const codes = await det.detect(v);
+        if (codes && codes.length) {
+          const raw = codes[0].rawValue || '';
+          // Expect your QR payload to be a URL or JSON. Handle both:
+          let params = {};
+          try {
+            if (raw.startsWith('http')) {
+              const u = new URL(raw);
+              u.searchParams.forEach((v,k)=>params[k]=v);
+            } else {
+              params = JSON.parse(raw);
+            }
+          } catch(e) {
+            // If arbitrary text, stash and send user to no-code with a hint
+            params = { note: raw };
+          }
+
+          // Store raw for debugging
+          localStorage.setItem('CESScanRaw', raw);
+
+          // Redirect into no-code with any extracted hints (unit/job)
+          const go = new URL('/nocode-main.php', location.origin);
+          if (params.unit) go.searchParams.set('unit', params.unit);
+          if (params.job)  go.searchParams.set('job', params.job);
+          if (params.customer) go.searchParams.set('customer', params.customer);
+          location.href = go.toString();
+          return;
+        }
+      } catch {}
+      requestAnimationFrame(tick);
+    };
+    tick();
+  } catch (e) {
+    msg('Unable to access camera. Use No-Code / Rental.');
+  }
+})();
+</script>

@@ -1,0 +1,27 @@
+{
+  "name": "CES Inspections",
+  "short_name": "CES",
+  "id": "com.ces.inspections",
+  "lang": "en-US",
+  "dir": "ltr",
+  "start_url": "/launch",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#0b0f14",
+  "theme_color": "#0b0f14",
+  "description": "Launch, verify, inspect, capture photos, and close out inspections.",
+  "icons": [
+    { "src": "/assets/pwa/icon-192.png",     "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "/assets/pwa/icon-512.png",     "sizes": "512x512", "type": "image/png", "purpose": "any maskable" },
+    { "src": "/assets/pwa/maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    { "name": "Start Inspection", "short_name": "Start",  "url": "/launch" },
+    { "name": "Manual Start",     "short_name": "Manual", "url": "/start-manual" }
+  ],
+  "categories": ["productivity", "business"],
+  "prefer_related_applications": false,
+  "launch_handler": { "client_mode": "focus-existing" }
+}
+
