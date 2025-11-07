@@ -1,0 +1,155 @@
+[07-Oct-2025 23:15:34 UTC] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'active' in 'SELECT' in /home/epaprfx7wvl3/public_html/staging/api/main-profile.php:26
+Stack trace:
+#0 /home/epaprfx7wvl3/public_html/staging/api/main-profile.php(26): PDOStatement->execute()
+#1 {main}
+  thrown in /home/epaprfx7wvl3/public_html/staging/api/main-profile.php on line 26
+[07-Oct-2025 23:31:24 UTC] PHP Fatal error:  strict_types declaration must be the very first statement in the script in /home/epaprfx7wvl3/public_html/staging/api/inspections.php on line 25
+[07-Oct-2025 23:51:57 UTC] PHP Fatal error:  strict_types declaration must be the very first statement in the script in /home/epaprfx7wvl3/public_html/staging/api/inspections.php on line 35
+[07-Oct-2025 23:58:06 UTC] PHP Fatal error:  strict_types declaration must be the very first statement in the script in /home/epaprfx7wvl3/public_html/staging/api/inspections.php on line 35
+[08-Oct-2025 00:05:35 UTC] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'active' in 'SELECT' in /home/epaprfx7wvl3/public_html/staging/api/main-profile.php:26
+Stack trace:
+#0 /home/epaprfx7wvl3/public_html/staging/api/main-profile.php(26): PDOStatement->execute()
+#1 {main}
+  thrown in /home/epaprfx7wvl3/public_html/staging/api/main-profile.php on line 26
+[08-Oct-2025 00:11:21 UTC] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'active' in 'SELECT' in /home/epaprfx7wvl3/public_html/staging/api/main-profile.php:26
+Stack trace:
+#0 /home/epaprfx7wvl3/public_html/staging/api/main-profile.php(26): PDOStatement->execute()
+#1 {main}
+  thrown in /home/epaprfx7wvl3/public_html/staging/api/main-profile.php on line 26
+[08-Oct-2025 00:12:07 UTC] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'active' in 'SELECT' in /home/epaprfx7wvl3/public_html/staging/api/main-profile.php:26
+Stack trace:
+#0 /home/epaprfx7wvl3/public_html/staging/api/main-profile.php(26): PDOStatement->execute()
+#1 {main}
+  thrown in /home/epaprfx7wvl3/public_html/staging/api/main-profile.php on line 26
+[08-Oct-2025 00:13:38 UTC] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'active' in 'SELECT' in /home/epaprfx7wvl3/public_html/staging/api/main-profile.php:26
+Stack trace:
+#0 /home/epaprfx7wvl3/public_html/staging/api/main-profile.php(26): PDOStatement->execute()
+#1 {main}
+  thrown in /home/epaprfx7wvl3/public_html/staging/api/main-profile.php on line 26
+[08-Oct-2025 00:15:38 UTC] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'active' in 'SELECT' in /home/epaprfx7wvl3/public_html/staging/api/main-profile.php:26
+Stack trace:
+#0 /home/epaprfx7wvl3/public_html/staging/api/main-profile.php(26): PDOStatement->execute()
+#1 {main}
+  thrown in /home/epaprfx7wvl3/public_html/staging/api/main-profile.php on line 26
+[08-Oct-2025 00:15:40 UTC] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'active' in 'SELECT' in /home/epaprfx7wvl3/public_html/staging/api/main-profile.php:26
+Stack trace:
+#0 /home/epaprfx7wvl3/public_html/staging/api/main-profile.php(26): PDOStatement->execute()
+#1 {main}
+  thrown in /home/epaprfx7wvl3/public_html/staging/api/main-profile.php on line 26
+[08-Oct-2025 00:17:06 UTC] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'active' in 'SELECT' in /home/epaprfx7wvl3/public_html/staging/api/main-profile.php:26
+Stack trace:
+#0 /home/epaprfx7wvl3/public_html/staging/api/main-profile.php(26): PDOStatement->execute()
+#1 {main}
+  thrown in /home/epaprfx7wvl3/public_html/staging/api/main-profile.php on line 26
+[08-Oct-2025 00:23:06 UTC] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'active' in 'SELECT' in /home/epaprfx7wvl3/public_html/staging/api/main-profile.php:26
+Stack trace:
+#0 /home/epaprfx7wvl3/public_html/staging/api/main-profile.php(26): PDOStatement->execute()
+#1 {main}
+  thrown in /home/epaprfx7wvl3/public_html/staging/api/main-profile.php on line 26
+[08-Oct-2025 00:23:27 UTC] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'active' in 'SELECT' in /home/epaprfx7wvl3/public_html/staging/api/main-profile.php:26
+Stack trace:
+#0 /home/epaprfx7wvl3/public_html/staging/api/main-profile.php(26): PDOStatement->execute()
+#1 {main}
+  thrown in /home/epaprfx7wvl3/public_html/staging/api/main-profile.php on line 26
+[08-Oct-2025 13:44:23 UTC] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'active' in 'SELECT' in /home/epaprfx7wvl3/public_html/staging/api/main-profile.php:26
+Stack trace:
+#0 /home/epaprfx7wvl3/public_html/staging/api/main-profile.php(26): PDOStatement->execute()
+#1 {main}
+  thrown in /home/epaprfx7wvl3/public_html/staging/api/main-profile.php on line 26
+[08-Oct-2025 13:44:34 UTC] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'active' in 'SELECT' in /home/epaprfx7wvl3/public_html/staging/api/main-profile.php:26
+Stack trace:
+#0 /home/epaprfx7wvl3/public_html/staging/api/main-profile.php(26): PDOStatement->execute()
+#1 {main}
+  thrown in /home/epaprfx7wvl3/public_html/staging/api/main-profile.php on line 26
+[08-Oct-2025 13:44:54 UTC] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'active' in 'SELECT' in /home/epaprfx7wvl3/public_html/staging/api/main-profile.php:26
+Stack trace:
+#0 /home/epaprfx7wvl3/public_html/staging/api/main-profile.php(26): PDOStatement->execute()
+#1 {main}
+  thrown in /home/epaprfx7wvl3/public_html/staging/api/main-profile.php on line 26
+[08-Oct-2025 13:45:49 UTC] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'active' in 'SELECT' in /home/epaprfx7wvl3/public_html/staging/api/main-profile.php:26
+Stack trace:
+#0 /home/epaprfx7wvl3/public_html/staging/api/main-profile.php(26): PDOStatement->execute()
+#1 {main}
+  thrown in /home/epaprfx7wvl3/public_html/staging/api/main-profile.php on line 26
+[08-Oct-2025 13:46:33 UTC] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'active' in 'SELECT' in /home/epaprfx7wvl3/public_html/staging/api/main-profile.php:26
+Stack trace:
+#0 /home/epaprfx7wvl3/public_html/staging/api/main-profile.php(26): PDOStatement->execute()
+#1 {main}
+  thrown in /home/epaprfx7wvl3/public_html/staging/api/main-profile.php on line 26
+[08-Oct-2025 13:46:43 UTC] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'active' in 'SELECT' in /home/epaprfx7wvl3/public_html/staging/api/main-profile.php:26
+Stack trace:
+#0 /home/epaprfx7wvl3/public_html/staging/api/main-profile.php(26): PDOStatement->execute()
+#1 {main}
+  thrown in /home/epaprfx7wvl3/public_html/staging/api/main-profile.php on line 26
+[08-Oct-2025 13:49:52 UTC] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'active' in 'SELECT' in /home/epaprfx7wvl3/public_html/staging/api/main-profile.php:26
+Stack trace:
+#0 /home/epaprfx7wvl3/public_html/staging/api/main-profile.php(26): PDOStatement->execute()
+#1 {main}
+  thrown in /home/epaprfx7wvl3/public_html/staging/api/main-profile.php on line 26
+[08-Oct-2025 13:50:28 UTC] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'active' in 'SELECT' in /home/epaprfx7wvl3/public_html/staging/api/main-profile.php:26
+Stack trace:
+#0 /home/epaprfx7wvl3/public_html/staging/api/main-profile.php(26): PDOStatement->execute()
+#1 {main}
+  thrown in /home/epaprfx7wvl3/public_html/staging/api/main-profile.php on line 26
+[08-Oct-2025 14:17:30 UTC] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'active' in 'SELECT' in /home/epaprfx7wvl3/public_html/staging/api/main-profile.php:26
+Stack trace:
+#0 /home/epaprfx7wvl3/public_html/staging/api/main-profile.php(26): PDOStatement->execute()
+#1 {main}
+  thrown in /home/epaprfx7wvl3/public_html/staging/api/main-profile.php on line 26
+[08-Oct-2025 14:17:55 UTC] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'active' in 'SELECT' in /home/epaprfx7wvl3/public_html/staging/api/main-profile.php:26
+Stack trace:
+#0 /home/epaprfx7wvl3/public_html/staging/api/main-profile.php(26): PDOStatement->execute()
+#1 {main}
+  thrown in /home/epaprfx7wvl3/public_html/staging/api/main-profile.php on line 26
+[08-Oct-2025 15:56:32 UTC] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'active' in 'SELECT' in /home/epaprfx7wvl3/public_html/staging/api/main-profile.php:26
+Stack trace:
+#0 /home/epaprfx7wvl3/public_html/staging/api/main-profile.php(26): PDOStatement->execute()
+#1 {main}
+  thrown in /home/epaprfx7wvl3/public_html/staging/api/main-profile.php on line 26
+[08-Oct-2025 15:57:52 UTC] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'active' in 'SELECT' in /home/epaprfx7wvl3/public_html/staging/api/main-profile.php:26
+Stack trace:
+#0 /home/epaprfx7wvl3/public_html/staging/api/main-profile.php(26): PDOStatement->execute()
+#1 {main}
+  thrown in /home/epaprfx7wvl3/public_html/staging/api/main-profile.php on line 26
+[13-Oct-2025 23:35:14 UTC] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'sFormNum' in 'SELECT' in /home/epaprfx7wvl3/public_html/staging/api/forms.php:195
+Stack trace:
+#0 /home/epaprfx7wvl3/public_html/staging/api/forms.php(195): PDO->query()
+#1 {main}
+  thrown in /home/epaprfx7wvl3/public_html/staging/api/forms.php on line 195
+[13-Oct-2025 23:35:35 UTC] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'sFormNum' in 'SELECT' in /home/epaprfx7wvl3/public_html/staging/api/forms.php:195
+Stack trace:
+#0 /home/epaprfx7wvl3/public_html/staging/api/forms.php(195): PDO->query()
+#1 {main}
+  thrown in /home/epaprfx7wvl3/public_html/staging/api/forms.php on line 195
+[13-Oct-2025 23:48:55 UTC] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'sFormNum' in 'SELECT' in /home/epaprfx7wvl3/public_html/staging/api/forms.php:195
+Stack trace:
+#0 /home/epaprfx7wvl3/public_html/staging/api/forms.php(195): PDO->query()
+#1 {main}
+  thrown in /home/epaprfx7wvl3/public_html/staging/api/forms.php on line 195
+[13-Oct-2025 23:49:20 UTC] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'sFormNum' in 'SELECT' in /home/epaprfx7wvl3/public_html/staging/api/forms.php:195
+Stack trace:
+#0 /home/epaprfx7wvl3/public_html/staging/api/forms.php(195): PDO->query()
+#1 {main}
+  thrown in /home/epaprfx7wvl3/public_html/staging/api/forms.php on line 195
+[31-Oct-2025 16:02:00 UTC] PHP Parse error:  syntax error, unexpected end of file in /home/epaprfx7wvl3/public_html/staging/api/form-map-import.php on line 87
+[31-Oct-2025 16:05:36 UTC] PHP Parse error:  syntax error, unexpected end of file in /home/epaprfx7wvl3/public_html/staging/api/form-map-import.php on line 87
+[31-Oct-2025 16:07:38 UTC] PHP Parse error:  syntax error, unexpected end of file in /home/epaprfx7wvl3/public_html/staging/api/form-map-import.php on line 87
+[31-Oct-2025 16:09:14 UTC] PHP Parse error:  syntax error, unexpected end of file in /home/epaprfx7wvl3/public_html/staging/api/form-map-import.php on line 87
+[31-Oct-2025 16:18:49 UTC] PHP Parse error:  syntax error, unexpected identifier "_" in /home/epaprfx7wvl3/public_html/staging/api/form-map-import.php on line 90
+[31-Oct-2025 16:31:25 UTC] PHP Warning:  Undefined variable $env in /home/epaprfx7wvl3/public_html/staging/api/form-map-import.php on line 10
+[31-Oct-2025 16:31:25 UTC] PHP Fatal error:  Uncaught TypeError: is_readable(): Argument #1 ($filename) must be of type string, null given in /home/epaprfx7wvl3/public_html/staging/api/form-map-import.php:10
+Stack trace:
+#0 /home/epaprfx7wvl3/public_html/staging/api/form-map-import.php(10): is_readable()
+#1 {main}
+  thrown in /home/epaprfx7wvl3/public_html/staging/api/form-map-import.php on line 10
+[31-Oct-2025 16:34:01 UTC] PHP Parse error:  Unclosed '(' in /home/epaprfx7wvl3/public_html/staging/api/form-map-import.php on line 33
+[31-Oct-2025 22:49:26 UTC] PHP Parse error:  syntax error, unexpected identifier "chmod" in /home/epaprfx7wvl3/public_html/staging/api/form-map-import.php on line 48
+[31-Oct-2025 22:53:34 UTC] PHP Parse error:  syntax error, unexpected identifier "chmod" in /home/epaprfx7wvl3/public_html/staging/api/form-map-import.php on line 57
+[01-Nov-2025 14:22:41 UTC] PHP Parse error:  syntax error, unexpected identifier "chmod" in /home/epaprfx7wvl3/public_html/staging/api/form-map-import.php on line 126
+[01-Nov-2025 14:22:53 UTC] PHP Parse error:  syntax error, unexpected identifier "chmod" in /home/epaprfx7wvl3/public_html/staging/api/form-map-import.php on line 126
+[01-Nov-2025 14:23:19 UTC] PHP Parse error:  syntax error, unexpected identifier "chmod" in /home/epaprfx7wvl3/public_html/staging/api/form-map-import.php on line 126
+[02-Nov-2025 21:20:30 UTC] PHP Parse error:  syntax error, unexpected identifier "chmod" in /home/epaprfx7wvl3/public_html/staging/api/form-map-import.php on line 122
+[02-Nov-2025 22:07:00 UTC] PHP Parse error:  syntax error, unexpected identifier "chmod" in /home/epaprfx7wvl3/public_html/staging/api/form-map-import.php on line 122
+[02-Nov-2025 22:26:37 UTC] PHP Parse error:  syntax error, unexpected identifier "mv" in /home/epaprfx7wvl3/public_html/staging/api/form-map-import.php on line 100
+[02-Nov-2025 22:52:18 UTC] PHP Parse error:  syntax error, unexpected string content "CREATE TABLE iF NOT EXISTS for..." in /home/epaprfx7wvl3/public_html/staging/api/form-map-import.php on line 28
+[03-Nov-2025 02:17:43 UTC] PHP Parse error:  syntax error, unexpected string content "CREATE TABLE iF NOT EXISTS for..." in /home/epaprfx7wvl3/public_html/staging/api/form-map-import.php on line 28
