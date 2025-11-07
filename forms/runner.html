@@ -1,0 +1,170 @@
+<!doctype html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CES Form Runner</title>
+<style>
+  body{margin:0;font:16px system-ui;background:#0b0f14;color:#e6edf3}
+  .wrap{max-width:860px;margin:0 auto;padding:18px}
+  .card{background:#0e141d;border:1px solid #223345;border-radius:12px;padding:12px;margin:10px 0}
+  .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+  label{display:block;margin:8px 0}
+  input,select,textarea{width:100%;background:#0b111a;color:#e6edf3;border:1px solid #2a3a50;border-radius:8px;padding:8px}
+  textarea{min-height:90px}
+  .btn{padding:10px 14px;border-radius:10px;border:1px solid #2a3a50;background:#132034;color:#e6edf3;cursor:pointer}
+  .btn.primary{background:#3ea6ff;color:#001322;border-color:transparent;font-weight:600}
+  fieldset{border:1px dashed #2a3a50;border-radius:10px;margin:12px 0;padding:10px}
+  legend{padding:0 6px;color:#9fb1c6}
+  .mut{color:#9fb1c6}
+</style>
+<div class="wrap">
+  <div class="row">
+    <h2 id="title" style="margin:0">Loading…</h2>
+    <span id="meta" class="mut"></span>
+  </div>
+  <div id="mount"></div>
+  <div class="row">
+    <button class="btn" id="saveDraft">Save Draft (local)</button>
+    <button class="btn primary" id="finalize">Finalize</button>
+    <span id="msg" class="mut"></span>
+  </div>
+</div>
+<script>
+const API_FORMS = '/api/forms.php';
+const qs = new URLSearchParams(location.search);
+const inspectId = qs.get('inspectId') || (JSON.parse(localStorage.getItem('CESState')||'{}').inspectId);
+const formKey = qs.get('form') || 'form_200';
+
+const stateKey = (inspectId && formKey) ? `CESDraft:${inspectId}:${formKey}` : null;
+let schema = null;
+let model = {}; // { field_key: value }
+
+const msg = s => document.getElementById('msg').textContent = s;
+
+const field = (f, opts=[]) => {
+  const id = `f_${f.field_key}`;
+  let input;
+  if (f.type === 'pfna') {
+    const set = document.createElement('div');
+    ['Pass','Fail','NA'].forEach(v=>{
+      const lab = document.createElement('label'); lab.style.display='inline-flex'; lab.style.gap='6px'; lab.style.marginRight='12px';
+      const r = document.createElement('input'); r.type='radio'; r.name=id; r.value=v.toLowerCase();
+      if (model[f.field_key] === r.value) r.checked = true;
+      r.onchange = ()=> model[f.field_key] = r.value;
+      lab.append(r, document.createTextNode(v));
+      set.appendChild(lab);
+    });
+    input = set;
+  } else if (f.type === 'checkbox') {
+    // multi-select
+    const wrap = document.createElement('div');
+    const current = new Set(Array.isArray(model[f.field_key]) ? model[f.field_key] : []);
+    (opts||[]).forEach(o=>{
+      const lab = document.createElement('label'); lab.style.display='block';
+      const c = document.createElement('input'); c.type='checkbox'; c.value=o.value;
+      c.checked = current.has(o.value);
+      c.onchange = ()=>{
+        const s = new Set(Array.isArray(model[f.field_key]) ? model[f.field_key] : []);
+        c.checked ? s.add(o.value) : s.delete(o.value);
+        model[f.field_key] = Array.from(s);
+      };
+      lab.append(c, document.createTextNode(' '+o.label));
+      wrap.appendChild(lab);
+    });
+    input = wrap;
+  } else if (f.type === 'radio') {
+    const wrap = document.createElement('div');
+    (opts||[]).forEach(o=>{
+      const lab = document.createElement('label'); lab.style.display='block';
+      const r = document.createElement('input'); r.type='radio'; r.name=id; r.value=o.value;
+      if (model[f.field_key] === o.value) r.checked = true;
+      r.onchange = ()=> model[f.field_key] = o.value;
+      lab.append(r, document.createTextNode(' '+o.label));
+      wrap.appendChild(lab);
+    });
+    input = wrap;
+  } else if (f.type === 'select') {
+    const sel = document.createElement('select');
+    (opts||[]).forEach(o=>{ const op = new Option(o.label, o.value); sel.add(op); });
+    sel.value = model[f.field_key] ?? '';
+    sel.onchange = ()=> model[f.field_key] = sel.value;
+    input = sel;
+  } else if (f.type === 'textarea') {
+    const ta = document.createElement('textarea');
+    ta.value = model[f.field_key] ?? '';
+    ta.oninput = ()=> model[f.field_key] = ta.value;
+    input = ta;
+  } else if (f.type === 'number') {
+    const n = document.createElement('input'); n.type='number';
+    if (f.min_val != null) n.min = f.min_val;
+    if (f.max_val != null) n.max = f.max_val;
+    n.value = model[f.field_key] ?? '';
+    n.oninput = ()=> model[f.field_key] = n.value;
+    input = n;
+  } else if (f.type === 'date') {
+    const d = document.createElement('input'); d.type='date';
+    d.value = model[f.field_key] ?? '';
+    d.oninput = ()=> model[f.field_key] = d.value;
+    input = d;
+  } else {
+    const t = document.createElement('input'); t.type='text';
+    t.placeholder = f.placeholder || '';
+    t.value = model[f.field_key] ?? '';
+    t.oninput = ()=> model[f.field_key] = t.value;
+    input = t;
+  }
+
+  const box = document.createElement('label');
+  box.innerHTML = `<div style="margin:6px 0;font-weight:600">${f.label}${f.required?' *':''}</div>`;
+  box.appendChild(input);
+  return box;
+};
+
+(async () => {
+  if (!inspectId) { msg('Missing inspectId'); return; }
+  const res = await fetch(`${API_FORMS}?action=get&form=${encodeURIComponent(formKey)}`).then(r=>r.json()).catch(()=>null);
+  if (!res || !res.ok) { msg('Failed to load schema'); return; }
+  schema = res;
+  document.getElementById('title').textContent = schema.form_key || formKey;
+  document.getElementById('meta').textContent = `v${schema.version}`;
+
+  // Load draft if any
+  if (stateKey) {
+    try { model = JSON.parse(localStorage.getItem(stateKey)||'{}') || {}; } catch{ model = {}; }
+  }
+
+  const optMap = schema.options || {};
+  const mount = document.getElementById('mount');
+  mount.innerHTML = '';
+  (schema.sections||[]).sort((a,b)=>a.ord-b.ord).forEach(sec=>{
+    const fs = document.createElement('fieldset');
+    const lg = document.createElement('legend'); lg.textContent = sec.label || sec.section_key; fs.appendChild(lg);
+
+    const fields = (schema.fields||[]).filter(f=>f.section_key===sec.section_key).sort((a,b)=>a.ord-b.ord);
+    fields.forEach(f=>{
+      const opts = f.options_key ? (optMap[f.options_key]||[]) : [];
+      fs.appendChild(field(f, opts));
+    });
+
+    mount.appendChild(fs);
+  });
+
+  document.getElementById('saveDraft').onclick = ()=>{
+    if (!stateKey) return;
+    localStorage.setItem(stateKey, JSON.stringify(model));
+    msg('Draft saved locally.');
+  };
+
+  document.getElementById('finalize').onclick = async ()=>{
+    // TODO: wire this into your existing finalize path.
+    // For now, we stash to localStorage and navigate to your summary.
+    if (stateKey) localStorage.setItem(stateKey, JSON.stringify(model));
+
+    // Example: hand off to your existing summary flow
+    const next = new URL('/summary-finalize.php', location.origin);
+    next.searchParams.set('inspectId', inspectId);
+    next.searchParams.set('form', formKey);
+    // If you prefer an intermediate "close.php" step, redirect there instead.
+    location.href = next.toString();
+  };
+})();
+</script>
