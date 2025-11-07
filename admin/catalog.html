@@ -1,0 +1,317 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>CES Field Catalog Admin</title>
+<style>
+  :root { color-scheme: light dark; --bg:#0b0f14; --card:#121821; --ink:#e6edf3; --muted:#9fb0c2; }
+  body { margin:0; font:14px/1.5 system-ui,Segoe UI,Roboto,Arial; background:#0b0f14; color:#e6edf3; }
+  .wrap { max-width:1100px; margin:24px auto; padding:0 16px; }
+  .grid { display:grid; grid-template-columns: 360px 1fr; gap:16px; }
+  .card { background:#121821; border:1px solid #1f2a3a; border-radius:16px; padding:14px; }
+  h1 { margin:0 0 12px; font-size:20px; }
+  h2 { margin:0 0 10px; font-size:16px; }
+  input, select, textarea, button { width:100%; padding:10px; border-radius:10px; border:1px solid #2a3a50; background:#0e141d; color:#e6edf3; }
+  label { display:block; font-size:12px; color:#9fb0c2; margin:10px 0 6px; }
+  .row { display:grid; grid-template-columns: 1fr 1fr; gap:10px; }
+  .list { max-height:70vh; overflow:auto; }
+  table { width:100%; border-collapse:collapse; }
+  th, td { padding:8px; border-bottom:1px solid #223148; font-size:13px; }
+  .actions { display:flex; gap:10px; }
+  .pill { display:inline-block; padding:2px 8px; border-radius:999px; font-size:12px; background:#0e141d; border:1px solid #2a3a50; color:#9fb0c2; }
+  .muted { color:#9fb0c2; font-size:12px; }
+  .row3 { display:grid; grid-template-columns: 1fr 1fr 80px 40px; gap:8px; align-items:center; }
+  .mini { height:36px; padding:0 10px; }
+  .danger { background:#36181c; border-color:#7a2b36; }
+  .ok { background:#102a1e; border-color:#2f6c52; }
+  .status { margin-top:8px; min-height:24px; font-size:12px; color:#9fb0c2; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>CES Field Catalog Admin <span class="pill" id="env"></span></h1>
+  <div class="grid">
+    <div class="card">
+      <h2>Catalog</h2>
+      <input id="search" type="text" placeholder="Search… (key/label/type)" />
+      <div class="list" id="list"></div>
+      <div class="status" id="listStatus"></div>
+    </div>
+    <div class="card">
+      <h2 id="formTitle">New Catalog Field</h2>
+      <div class="row">
+        <div>
+          <label>Catalog Key *</label>
+          <input id="catalog_key" placeholder="e.g., unit_condition" />
+        </div>
+        <div>
+          <label>Label *</label>
+          <input id="label" placeholder="Human label" />
+        </div>
+      </div>
+      <div class="row">
+        <div>
+          <label>Type *</label>
+          <select id="type">
+            <option value="text">text</option>
+            <option value="textarea">textarea</option>
+            <option value="number">number</option>
+            <option value="date">date</option>
+            <option value="radio">radio</option>
+            <option value="checkbox">checkbox</option>
+            <option value="select">select</option>
+          </select>
+        </div>
+        <div>
+          <label>Required (default)</label>
+          <select id="required_def">
+            <option value="">false</option>
+            <option value="true">true</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="row">
+        <div>
+          <label>Placeholder</label>
+          <input id="placeholder" />
+        </div>
+        <div>
+          <label>Default Value</label>
+          <input id="default_val" />
+        </div>
+      </div>
+
+      <div class="row">
+        <div>
+          <label>Min</label>
+          <input id="min_val" />
+        </div>
+        <div>
+          <label>Max</label>
+          <input id="max_val" />
+        </div>
+      </div>
+
+      <label>Pattern (regex)</label>
+      <input id="pattern" />
+
+      <h2 style="margin-top:16px;">Options (for radio/checkbox/select)</h2>
+      <div id="opts"></div>
+      <button class="mini" onclick="addOpt()">+ Add option</button>
+
+      <div class="actions" style="margin-top:14px;">
+        <button class="ok" onclick="save()">Save / Upsert</button>
+        <button onclick="resetForm()">New / Clear</button>
+        <button class="danger" onclick="removeItem()">Delete</button>
+      </div>
+      <div class="status" id="status"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+/*** CONFIG — set these two ***/
+var BASE_URL = 'https://YOUR-HOST-HERE/api/forms.php';   // exact host
+var IMPORT_KEY = 'YOUR_REAL_CES_IMPORT_KEY';             // from env.php
+
+document.getElementById('env').textContent = BASE_URL.replace(/^https?:\/\//,'');
+var _items = [];
+var _filter = '';
+
+function q(id){ return document.getElementById(id); }
+function esc(s){ return String(s == null ? '' : s).replace(/[&<>"]/g, function(c){ return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]); }); }
+
+function status(msg){ q('status').textContent = msg || ''; }
+function listStatus(msg){ q('listStatus').textContent = msg || ''; }
+
+function optRow(value, label, ord){
+  var d = document.createElement('div');
+  d.className = 'row3';
+  d.innerHTML = ''
+    + '<input class="ov" placeholder="value" value="'+esc(value||'')+'"/>'
+    + '<input class="ol" placeholder="label" value="'+esc(label||'')+'"/>'
+    + '<input class="oo" placeholder="ord" value="'+esc(ord||'')+'"/>'
+    + '<button class="mini danger" onclick="this.parentNode.remove()">×</button>';
+  return d;
+}
+function addOpt(){ q('opts').appendChild(optRow('','', '')); }
+
+function resetForm(){
+  q('formTitle').textContent = 'New Catalog Field';
+  q('catalog_key').value = '';
+  q('label').value = '';
+  q('type').value = 'text';
+  q('required_def').value = '';
+  q('placeholder').value = '';
+  q('default_val').value = '';
+  q('min_val').value = '';
+  q('max_val').value = '';
+  q('pattern').value = '';
+  q('opts').innerHTML = '';
+  status('');
+}
+
+function fillForm(it){
+  q('formTitle').textContent = 'Edit: ' + (it.catalog_key || '');
+  q('catalog_key').value = it.catalog_key || '';
+  q('label').value = it.label || '';
+  q('type').value = it.type || 'text';
+  q('required_def').value = it.required_def ? 'true' : '';
+  q('placeholder').value = it.placeholder || '';
+  q('default_val').value = it.default_val || '';
+  q('min_val').value = (it.min_val == null ? '' : it.min_val);
+  q('max_val').value = (it.max_val == null ? '' : it.max_val);
+  q('pattern').value = it.pattern || '';
+  q('opts').innerHTML = '';
+  var opts = (it.options || []);
+  for (var i=0;i<opts.length;i++){
+    q('opts').appendChild(optRow(opts[i].value, opts[i].label, opts[i].ord));
+  }
+  status('');
+}
+
+function getFormObj(){
+  var obj = {
+    catalog_key: q('catalog_key').value.trim(),
+    label: q('label').value.trim(),
+    type: q('type').value.trim(),
+    required_def: q('required_def').value === 'true',
+    placeholder: clean(q('placeholder').value),
+    default_val: clean(q('default_val').value),
+    min_val: numOrNull(q('min_val').value),
+    max_val: numOrNull(q('max_val').value),
+    pattern: clean(q('pattern').value)
+  };
+  // options
+  var opts = [];
+  var rows = q('opts').children;
+  for (var i=0;i<rows.length;i++){
+    var r = rows[i];
+    var v = r.querySelector('.ov').value.trim();
+    var l = r.querySelector('.ol').value.trim();
+    var o = r.querySelector('.oo').value.trim();
+    if (!v && !l) continue;
+    opts.push({ value: v, label: l, ord: o ? Number(o) : null });
+  }
+  if (opts.length) obj.options = opts;
+  return obj;
+}
+
+function clean(v){ v = (v==null?'':String(v)).trim(); return v ? v : null; }
+function numOrNull(v){ v = (v==null?'':String(v)).trim(); if (!v) return null; var n = Number(v); return isNaN(n) ? null : n; }
+
+function renderList(){
+  var L = q('list');
+  L.innerHTML = '';
+  var f = _filter.toLowerCase();
+  var items = _items.filter(function(it){
+    var s = (it.catalog_key+' '+it.label+' '+it.type).toLowerCase();
+    return !f || s.indexOf(f) >= 0;
+  });
+  if (!items.length) {
+    L.innerHTML = '<div class="muted">No items</div>';
+    return;
+  }
+  var tbl = document.createElement('table');
+  tbl.innerHTML = '<thead><tr><th>Key</th><th>Label</th><th>Type</th><th></th></tr></thead><tbody></tbody>';
+  var tb = tbl.querySelector('tbody');
+  for (var i=0;i<items.length;i++){
+    (function(it){
+      var tr = document.createElement('tr');
+      tr.innerHTML = '<td>'+esc(it.catalog_key)+'</td><td>'+esc(it.label||'')+'</td><td>'+esc(it.type||'')+'</td><td><button class="mini" onclick="loadOne(\''+encodeURIComponent(it.catalog_key)+'\')">Open</button></td>';
+      tb.appendChild(tr);
+    })(items[i]);
+  }
+  L.appendChild(tbl);
+}
+
+function loadAll(){
+  listStatus('Loading…');
+  fetch(BASE_URL+'?action=field_catalog_list', { method:'GET' })
+    .then(function(r){ return r.json(); })
+    .then(function(j){
+      _items = (j && j.items) ? j.items : [];
+      renderList();
+      listStatus('Loaded '+_items.length+' items.');
+    })
+    .catch(function(e){
+      listStatus('Error: '+e);
+    });
+}
+
+function loadOne(key){
+  var k = decodeURIComponent(key);
+  status('Loading '+k+'…');
+  fetch(BASE_URL+'?action=field_catalog_get&key='+encodeURIComponent(k), { method:'GET' })
+    .then(function(r){ return r.json(); })
+    .then(function(j){
+      if (!j || !j.item) throw new Error('Not found');
+      fillForm(j.item);
+      status('Loaded.');
+    })
+    .catch(function(e){
+      status('Error: '+e);
+    });
+}
+
+function save(){
+  var o = getFormObj();
+  if (!o.catalog_key || !o.label || !o.type) {
+    status('Missing required fields (catalog_key, label, type).');
+    return;
+  }
+  status('Saving…');
+  fetch(BASE_URL, {
+    method:'POST',
+    headers:{
+      'Content-Type':'application/json',
+      'X-IMPORT-KEY': IMPORT_KEY
+    },
+    body: JSON.stringify({ action:'field_catalog_upsert' , catalog_key:o.catalog_key, label:o.label, type:o.type, required_def:o.required_def, placeholder:o.placeholder, min_val:o.min_val, max_val:o.max_val, pattern:o.pattern, default_val:o.default_val, options:o.options || [] })
+  })
+  .then(function(r){ return r.json(); })
+  .then(function(j){
+    status('Saved. ok='+(j&&j.ok));
+    loadAll();
+  })
+  .catch(function(e){
+    status('Error: '+e);
+  });
+}
+
+function removeItem(){
+  var key = q('catalog_key').value.trim();
+  if (!key) { status('No catalog_key.'); return; }
+  if (!confirm('Delete '+key+' ?')) return;
+  status('Deleting…');
+  fetch(BASE_URL, {
+    method:'POST',
+    headers:{
+      'Content-Type':'application/json',
+      'X-IMPORT-KEY': IMPORT_KEY
+    },
+    body: JSON.stringify({ action:'field_catalog_delete', catalog_key:key })
+  })
+  .then(function(r){ return r.json(); })
+  .then(function(j){
+    status('Deleted. ok='+(j&&j.ok));
+    resetForm();
+    loadAll();
+  })
+  .catch(function(e){
+    status('Error: '+e);
+  });
+}
+
+q('search').addEventListener('input', function(e){
+  _filter = e.target.value || '';
+  renderList();
+});
+
+resetForm();
+loadAll();
+</script>
+</body>
+</html>

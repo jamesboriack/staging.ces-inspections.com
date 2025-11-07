@@ -1,0 +1,237 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Form Catalog Editor (Staging)</title>
+<style>
+  :root{color-scheme:dark}
+  body{margin:0;background:#0b0f14;color:#e6edf3;font:14px/1.45 system-ui,Segoe UI,Roboto,Arial}
+  .wrap{max-width:980px;margin:24px auto;padding:16px}
+  .card{background:#121821;border-radius:16px;padding:18px;box-shadow:0 8px 24px rgba(0,0,0,.35);margin-bottom:16px}
+  label{display:block;margin:8px 0 4px}
+  select,input,button{background:#0e141d;color:#e6edf3;border:1px solid #2a3a50;border-radius:10px;padding:10px}
+  select,input{width:100%}
+  .grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+  .row{display:grid;grid-template-columns:1fr 1fr 1fr 120px;gap:10px;align-items:center;padding:6px 0;border-bottom:1px solid #1c2533}
+  .muted{opacity:.8}
+  .err{background:#2b1114;border:1px solid #6b1a1f;color:#ffd0d4;border-radius:12px;padding:10px;margin:0 0 12px}
+  .ok{background:#0e1a12;border:1px solid #1e6b3b;color:#d7ffe1;border-radius:12px;padding:10px;margin:0 0 12px}
+  pre{white-space:pre-wrap;background:#0e141d;border:1px solid #2a3a50;border-radius:10px;padding:10px;overflow:auto}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div id="alert"></div>
+
+  <div class="card">
+    <h2>Form Catalog Editor (Staging)</h2>
+    <p class="muted">Pick a Category → Type. S-Form auto-fills. Uses <code>/staging/api/form-catalog.php</code>.</p>
+
+    <div class="grid">
+      <div>
+        <label>Category</label>
+        <select id="category"><option>Loading…</option></select>
+      </div>
+      <div>
+        <label>Type</label>
+        <select id="type"><option>—</option></select>
+      </div>
+    </div>
+
+    <div class="grid" style="margin-top:10px">
+      <div>
+        <label>S-Form Number</label>
+        <input id="sform" placeholder="auto from selection">
+      </div>
+      <div style="display:flex;align-items:flex-end;gap:8px">
+        <button id="save">Save Mapping</button>
+        <button id="reload" type="button">Reload</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>All Rows (active=1)</h3>
+    <div id="rows"></div>
+  </div>
+
+  <div class="card">
+    <h3>Diagnostics</h3>
+    <div class="grid">
+      <div>
+        <label>Last /categories</label>
+        <pre id="diagCats" class="muted">—</pre>
+      </div>
+      <div>
+        <label>Last /types</label>
+        <pre id="diagTypes" class="muted">—</pre>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  // Detect staging prefix automatically even if the file moves
+  const isStaging = location.pathname.startsWith('/staging/');
+  const api = (isStaging ? '/staging' : '') + '/api/form-catalog.php';
+
+  const el = {
+    alert: document.getElementById('alert'),
+    category: document.getElementById('category'),
+    type: document.getElementById('type'),
+    sform: document.getElementById('sform'),
+    rows: document.getElementById('rows'),
+    diagCats: document.getElementById('diagCats'),
+    diagTypes: document.getElementById('diagTypes'),
+    save: document.getElementById('save'),
+    reload: document.getElementById('reload'),
+  };
+
+  function showErr(msg){
+    el.alert.innerHTML = `<div class="err">${escapeHtml(msg)}</div>`;
+  }
+  function showOk(msg){
+    el.alert.innerHTML = `<div class="ok">${escapeHtml(msg)}</div>`;
+  }
+  function escapeHtml(s){ return String(s).replace(/[&<>"]/g, c=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;' }[c])); }
+
+  async function fetchJSON(url){
+    const cacheBust = (url.includes('?') ? '&' : '?') + '_t=' + Date.now();
+    const r = await fetch(url + cacheBust, { credentials:'same-origin' });
+    if(!r.ok) throw new Error(`HTTP ${r.status} for ${url}`);
+    return r.json();
+  }
+
+  async function loadCategories(){
+    try {
+      const js = await fetchJSON(`${api}?action=categories`);
+      el.diagCats.textContent = JSON.stringify(js, null, 2);
+      const cats = (js && Array.isArray(js.categories)) ? js.categories : [];
+      if (!cats.length) { showErr('No categories returned.'); }
+      // Don’t drop records just because key is missing; still show label.
+      const options = cats.map(c => {
+        const key = (c.category_key ?? '').toString().trim();
+        const label = (c.category_label ?? '').toString().trim() || '(no label)';
+        const text = key ? `${label}` : `${label} (no key)`;
+        const val = key || ''; // disable selection if no key
+        const dis = key ? '' : 'disabled';
+        return `<option value="${escapeHtml(val)}" ${dis}>${escapeHtml(text)}</option>`;
+      });
+      el.category.innerHTML = `<option value="">Select…</option>${options.join('')}`;
+      el.type.innerHTML = `<option value="">—</option>`;
+      el.sform.value = '';
+    } catch (e) {
+      console.error(e);
+      showErr('Failed to load categories: ' + e.message);
+      el.diagCats.textContent = String(e);
+    }
+  }
+
+  async function loadTypes(catKey){
+    try {
+      const js = await fetchJSON(`${api}?action=types&category_key=${encodeURIComponent(catKey)}`);
+      el.diagTypes.textContent = JSON.stringify(js, null, 2);
+      const types = (js && Array.isArray(js.types)) ? js.types : [];
+      if (!types.length) { showErr('No types returned for selected category.'); }
+      const options = types.map(t => {
+        const key = (t.type_key ?? '').toString().trim();
+        const label = (t.type_label ?? '').toString().trim() || '(no label)';
+        const sform = (t.s_form_num ?? '').toString().trim();
+        const text = key ? `${label}` : `${label} (no key)`;
+        const dis = key ? '' : 'disabled';
+        return `<option value="${escapeHtml(key)}" data-s="${escapeHtml(sform)}" ${dis}>${escapeHtml(text)}</option>`;
+      });
+      el.type.innerHTML = `<option value="">Select…</option>${options.join('')}`;
+      el.sform.value = '';
+    } catch (e) {
+      console.error(e);
+      showErr('Failed to load types: ' + e.message);
+      el.diagTypes.textContent = String(e);
+    }
+  }
+
+  async function renderRows(){
+    try {
+      const js = await fetchJSON(`${api}?action=list`);
+      const rows = (js && Array.isArray(js.rows)) ? js.rows : [];
+      el.rows.innerHTML = rows.length ? [
+        `<div class="row" style="font-weight:600">
+          <div>Category (key)</div><div>Type (key)</div><div>S-Form</div><div>Status</div>
+         </div>`,
+        ...rows.map(r => `<div class="row">
+          <div>${escapeHtml((r.category_label??''))} (${escapeHtml((r.category_key??''))})</div>
+          <div>${escapeHtml((r.type_label??''))} (${escapeHtml((r.type_key??''))})</div>
+          <div>${escapeHtml((r.s_form_num??''))}</div>
+          <div>${(+r.active===1)?'Active':'Inactive'}</div>
+        </div>`)
+      ].join('') : '<div class="muted">No rows.</div>';
+    } catch (e) {
+      console.error(e);
+      showErr('Failed to list rows: ' + e.message);
+    }
+  }
+
+  el.category.addEventListener('change', e => {
+    const k = e.target.value;
+    if (!k) { el.type.innerHTML = `<option value="">—</option>`; el.sform.value=''; return; }
+    loadTypes(k);
+  });
+
+  el.type.addEventListener('change', e => {
+    const opt = e.target.selectedOptions[0];
+    el.sform.value = opt ? (opt.dataset.s || '') : '';
+  });
+
+  el.reload.addEventListener('click', () => init());
+
+  el.save.addEventListener('click', async () => {
+    const catKey = el.category.value || '';
+    const catLbl = el.category.selectedOptions[0]?.textContent?.replace(/\s*\(no key\)\s*$/,'') || '';
+    const typKey = el.type.value || '';
+    const typLbl = el.type.selectedOptions[0]?.textContent?.replace(/\s*\(no key\)\s*$/,'') || '';
+    const sform  = el.sform.value.trim();
+
+    if(!catKey || !typKey || !sform){
+      showErr('Pick Category, Type, and S-Form before saving.');
+      return;
+    }
+
+    try {
+      const r = await fetch(`${api}?action=upsert_one&_t=${Date.now()}`, {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({
+          category_label: catLbl,
+          category_key:   catKey,
+          type_label:     typLbl,
+          type_key:       typKey,
+          s_form_num:     sform,
+          active:         1
+        })
+      });
+      const js = await r.json();
+      if(!js.ok){
+        showErr('Save failed: ' + (js.error || 'Unknown'));
+        return;
+      }
+      showOk('Saved.');
+      await renderRows();
+    } catch (e) {
+      console.error(e);
+      showErr('Save failed: ' + e.message);
+    }
+  });
+
+  async function init(){
+    el.alert.innerHTML = '';
+    await loadCategories();
+    await renderRows();
+  }
+
+  init();
+})();
+</script>
+</body>
+</html>
