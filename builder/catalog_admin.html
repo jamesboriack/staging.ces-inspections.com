@@ -1,0 +1,446 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>CES Field Catalog Admin</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+  :root { --bg:#0b1020; --card:#131a2a; --ink:#e7eefc; --muted:#9eb0d1; --accent:#5aa6ff; --danger:#ff5a6a; --ok:#42c77a; --warn:#ffc857; --line:#22304c; }
+  html,body { height:100%; margin:0; background:var(--bg); color:var(--ink); font:14px/1.45 system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; }
+  a { color: var(--accent); text-decoration: none; }
+  .shell { display:flex; height:100%; }
+  header { padding:12px 16px; background:#0e1530; border-bottom:1px solid var(--line); display:flex; align-items:center; gap:12px; }
+  header h1 { font-size:16px; margin:0; font-weight:600; }
+  header .sp { flex:1; }
+  .btn { background:#1a2338; color:var(--ink); border:1px solid var(--line); padding:8px 10px; border-radius:10px; cursor:pointer; }
+  .btn:hover { background:#22304c; }
+  .btn.primary { background:var(--accent); color:#051026; border-color:transparent; }
+  .btn.primary:hover { filter:brightness(1.05); }
+  .btn.danger { background:#33151a; color:#ffdadd; border-color:#5a1e27; }
+  .btn.danger:hover { background:#4a1c25; }
+  .btn.ghost { background:transparent; border-color:var(--line); }
+  .btn.small { padding:4px 8px; font-size:12px; border-radius:8px; }
+  .grid { display:grid; grid-template-columns: 360px 1fr; gap:0; height:calc(100% - 53px); }
+  .panel { border-right:1px solid var(--line); background:var(--card); overflow:auto; }
+  .panel.right { border-right:none; }
+  .section { padding:12px 16px; border-bottom:1px solid var(--line); }
+  .search { display:flex; gap:8px; }
+  input[type=text], input[type=number], textarea, select {
+    width:100%; padding:8px 10px; border-radius:8px; border:1px solid var(--line);
+    background:#0e1530; color:var(--ink); outline:none;
+  }
+  textarea { min-height:70px; resize:vertical; }
+  label { font-size:12px; color:var(--muted); display:block; margin:8px 0 4px; }
+  .list { padding:0; margin:0; list-style:none; }
+  .row { padding:10px 12px; border-bottom:1px solid var(--line); display:flex; gap:8px; align-items:center; cursor:pointer; }
+  .row:hover { background:#0f1730; }
+  .row .k { font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; color:#cde2ff; }
+  .row .t { color:var(--muted); font-size:12px; }
+  .pill { display:inline-block; padding:2px 6px; border-radius:999px; background:#0d1b34; border:1px solid var(--line); font-size:11px; color:#c9d7f2; }
+  .formgrid { display:grid; grid-template-columns: 1fr 1fr; gap:12px; }
+  .formgrid .colspan2 { grid-column: 1 / span 2; }
+  table { width:100%; border-collapse:collapse; }
+  th, td { text-align:left; padding:6px 8px; border-bottom:1px solid var(--line); }
+  th { font-weight:600; font-size:12px; color:var(--muted); }
+  .toolbar { display:flex; gap:8px; align-items:center; }
+  .muted { color:var(--muted); }
+  .status { margin-left:8px; font-size:12px; }
+  .status.ok { color:var(--ok); }
+  .status.err { color:var(--danger); }
+  .footer { padding:10px 16px; border-top:1px solid var(--line); background:#0e1530; display:flex; gap:8px; align-items:center; }
+  .sp { flex:1; }
+  .mono { font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+</style>
+</head>
+<body>
+<header>
+  <h1>CES Field Catalog Admin</h1>
+  <span class="sp"></span>
+  <button class="btn small ghost" id="btnRefresh">Refresh</button>
+  <button class="btn small" id="btnNew">New</button>
+  <a class="btn small ghost" href="../builder.html">Open Builder</a>
+</header>
+
+<div class="grid">
+  <!-- Left: list -->
+  <div class="panel">
+    <div class="section">
+      <div class="search">
+        <input type="text" id="q" placeholder="Search key / label / type...">
+        <button class="btn" id="btnSearch">Search</button>
+      </div>
+    </div>
+    <div id="list"></div>
+  </div>
+
+  <!-- Right: editor -->
+  <div class="panel right">
+    <div class="section">
+      <div class="toolbar">
+        <div class="muted">Edit Catalog Item</div>
+        <span class="sp"></span>
+        <div id="status" class="status"></div>
+      </div>
+    </div>
+    <div class="section">
+      <div class="formgrid">
+        <div>
+          <label>catalog_key *</label>
+          <input type="text" id="catalog_key" placeholder="letters, numbers, underscore, dash">
+        </div>
+        <div>
+          <label>type *</label>
+          <input list="types" id="type" placeholder="text / textarea / number / date / radio / checkbox / select">
+          <datalist id="types">
+            <option value="text"><option value="textarea"><option value="number">
+            <option value="date"><option value="radio"><option value="checkbox"><option value="select">
+          </datalist>
+        </div>
+        <div>
+          <label>label *</label>
+          <input type="text" id="label" placeholder="Human label">
+        </div>
+        <div>
+          <label>required_def</label>
+          <select id="required_def">
+            <option value="false">false</option>
+            <option value="true">true</option>
+          </select>
+        </div>
+        <div>
+          <label>placeholder</label>
+          <input type="text" id="placeholder">
+        </div>
+        <div>
+          <label>default_val</label>
+          <input type="text" id="default_val">
+        </div>
+        <div>
+          <label>min_val</label>
+          <input type="number" id="min_val" step="1">
+        </div>
+        <div>
+          <label>max_val</label>
+          <input type="number" id="max_val" step="1">
+        </div>
+        <div class="colspan2">
+          <label>pattern (regex)</label>
+          <input type="text" id="pattern" placeholder="^\d{5}$">
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="toolbar">
+        <div class="muted">Options (optional) — saved globally under <span class="mono">options_key = catalog_key</span></div>
+        <span class="sp"></span>
+        <button class="btn small" id="btnAddOpt">Add option</button>
+        <button class="btn small ghost" id="btnRenumber">Renumber ord</button>
+        <button class="btn small ghost" id="btnSort">Sort by ord</button>
+      </div>
+      <div style="overflow:auto; max-height: 35vh; margin-top:8px;">
+        <table id="opts">
+          <thead><tr><th style="width:28%;">value</th><th style="width:52%;">label</th><th style="width:12%;">ord</th><th></th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="footer">
+      <button class="btn danger" id="btnDelete">Delete</button>
+      <span class="sp"></span>
+      <button class="btn ghost" id="btnReset">Reset</button>
+      <button class="btn primary" id="btnSave">Save</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ===== CONFIG =====
+var CONFIG = {
+  BASE_URL: 'https://staging.ces-inspections.com/api/forms.php', // << set me
+  IMPORT_KEY: 'STAGE_LONG_RANDOM_SECRET'                          // << set me (ASCII quotes)
+};
+
+// ===== UTIL =====
+function $(id){ return document.getElementById(id); }
+function showStatus(text, ok){
+  var el = $('status');
+  el.textContent = text || '';
+  el.className = 'status ' + (ok === true ? 'ok' : ok === false ? 'err' : '');
+}
+function keyOK(k){ return /^[A-Za-z0-9_-]+$/.test(String(k||'')); }
+function toBool(v){ return String(v).toLowerCase() === 'true'; }
+function numOrNull(v){ if (v === '' || v == null) return null; var n = Number(v); return isNaN(n) ? null : n; }
+
+// All API calls: action in querystring (server expects it)
+function apiGet(action, params) {
+  var url = CONFIG.BASE_URL + '?action=' + encodeURIComponent(action);
+  if (params) {
+    for (var k in params) if (params.hasOwnProperty(k)) {
+      url += '&' + encodeURIComponent(k) + '=' + encodeURIComponent(params[k]);
+    }
+  }
+  return fetch(url, { method:'GET', credentials:'same-origin' })
+    .then(function(r){ return r.text(); })
+    .then(function(t){ try { return JSON.parse(t); } catch(e){ return { ok:false, error:'Bad JSON', raw:t }; } });
+}
+function apiPost(action, payload) {
+  var url = CONFIG.BASE_URL + '?action=' + encodeURIComponent(action);
+  return fetch(url, {
+    method:'POST',
+    credentials:'same-origin',
+    headers: { 'Content-Type':'application/json', 'X-IMPORT-KEY': CONFIG.IMPORT_KEY },
+    body: JSON.stringify(payload || {})
+  })
+  .then(function(r){ return r.text().then(function(t){ return { code:r.status, text:t }; }); })
+  .then(function(rt){
+    var json=null; try { json = JSON.parse(rt.text); } catch(e){}
+    return { httpCode: rt.code, json: json, raw: rt.text };
+  });
+}
+
+// ===== LIST + SEARCH =====
+var STATE = { list:[], current:null, dirty:false };
+
+function renderList(){
+  var q = ($('q').value || '').toLowerCase().trim();
+  var host = $('list');
+  host.innerHTML = '';
+  var ul = document.createElement('div'); // container
+  var list = STATE.list.slice();
+  if (q) {
+    list = list.filter(function(it){
+      return String(it.catalog_key||'').toLowerCase().indexOf(q)>=0 ||
+             String(it.label||'').toLowerCase().indexOf(q)>=0 ||
+             String(it.type||'').toLowerCase().indexOf(q)>=0;
+    });
+  }
+  if (list.length === 0) {
+    var div = document.createElement('div');
+    div.className = 'section muted';
+    div.textContent = 'No items.';
+    host.appendChild(div);
+    return;
+  }
+  for (var i=0;i<list.length;i++){
+    var it = list[i];
+    var row = document.createElement('div');
+    row.className = 'row';
+    row.dataset.key = it.catalog_key;
+    row.innerHTML =
+      '<div class="pill">' + (it.type || 'type?') + '</div>' +
+      '<div style="flex:1; overflow:hidden;">' +
+        '<div class="k">' + (it.catalog_key || '') + '</div>' +
+        '<div class="t">' + (it.label || '') + '</div>' +
+      '</div>';
+    row.onclick = function(e){ selectItem(this.dataset.key); };
+    ul.appendChild(row);
+  }
+  host.appendChild(ul);
+}
+
+function loadList(){
+  showStatus('Loading list...');
+  return apiGet('field_catalog_list', null).then(function(j){
+    if (!j || j.ok !== true) {
+      showStatus('List failed', false);
+      console.warn('field_catalog_list error:', j);
+      return;
+    }
+    STATE.list = j.items || j.list || j.rows || []; // accept any shape
+    showStatus('List loaded (' + STATE.list.length + ')', true);
+    renderList();
+  }).catch(function(err){
+    showStatus('List error', false);
+    console.error(err);
+  });
+}
+
+// ===== EDITOR =====
+function clearEditor(){
+  ['catalog_key','type','label','required_def','placeholder','default_val','min_val','max_val','pattern'].forEach(function(id){
+    $(id).value = '';
+  });
+  $('required_def').value = 'false';
+  var tb = $('opts').querySelector('tbody'); tb.innerHTML = '';
+  STATE.current = null; STATE.dirty = false; showStatus('');
+}
+function fillEditor(it){
+  $('catalog_key').value = it.catalog_key || '';
+  $('type').value = it.type || '';
+  $('label').value = it.label || '';
+  $('required_def').value = String(!!it.required_def);
+  $('placeholder').value = it.placeholder != null ? it.placeholder : '';
+  $('default_val').value = it.default_val != null ? it.default_val : '';
+  $('min_val').value = it.min_val != null ? it.min_val : '';
+  $('max_val').value = it.max_val != null ? it.max_val : '';
+  $('pattern').value = it.pattern != null ? it.pattern : '';
+
+  var tb = $('opts').querySelector('tbody');
+  tb.innerHTML = '';
+  var opts = it.options || [];
+  for (var i=0;i<opts.length;i++){
+    addOptRow(opts[i].value, opts[i].label, opts[i].ord);
+  }
+  STATE.current = it;
+  STATE.dirty = false;
+}
+function selectItem(key){
+  if (!key) return;
+  showStatus('Loading ' + key + ' ...');
+  apiGet('field_catalog_get', { key:key }).then(function(j){
+    if (!j || j.ok !== true) {
+      showStatus('Load failed', false);
+      console.warn('field_catalog_get error:', j);
+      return;
+    }
+    var it = j.item || j;
+    fillEditor(it);
+    showStatus('Loaded ' + key, true);
+  }).catch(function(err){
+    showStatus('Load error', false);
+    console.error(err);
+  });
+}
+
+// ===== OPTIONS TABLE =====
+function addOptRow(value, label, ord){
+  var tb = $('opts').querySelector('tbody');
+  var tr = document.createElement('tr');
+  tr.innerHTML =
+    '<td><input type="text" class="ov" placeholder="value"></td>' +
+    '<td><input type="text" class="ol" placeholder="label"></td>' +
+    '<td><input type="number" class="oo" step="1" min="0"></td>' +
+    '<td><button class="btn small danger">x</button></td>';
+  tb.appendChild(tr);
+  var inputs = tr.querySelectorAll('input');
+  inputs[0].value = value || '';
+  inputs[1].value = label || '';
+  inputs[2].value = ord != null ? ord : (tb.querySelectorAll('tr').length);
+  tr.querySelector('button').onclick = function(){ tr.parentNode.removeChild(tr); STATE.dirty=true; };
+  for (var i=0;i<inputs.length;i++) inputs[i].oninput = function(){ STATE.dirty=true; };
+}
+function gatherOptions(){
+  var rows = $('opts').querySelectorAll('tbody tr');
+  var out = [];
+  for (var i=0;i<rows.length;i++){
+    var r = rows[i];
+    var v = r.querySelector('.ov').value.trim();
+    var l = r.querySelector('.ol').value.trim();
+    var o = r.querySelector('.oo').value.trim();
+    if (v === '' && l === '') continue; // skip empty
+    out.push({ value: v, label: l, ord: (o === '' ? (i+1) : Number(o)) });
+  }
+  // sort stable by ord then label
+  out.sort(function(a,b){
+    var ao = a.ord==null ? 1e9 : a.ord, bo = b.ord==null ? 1e9 : b.ord;
+    if (ao !== bo) return ao - bo;
+    return String(a.label||'').localeCompare(String(b.label||''));
+  });
+  // fill ord gaps 1..N
+  for (var j=0;j<out.length;j++) out[j].ord = j+1;
+  return out;
+}
+
+// ===== SAVE / DELETE =====
+function buildPayload(){
+  var key = $('catalog_key').value.trim();
+  var type = $('type').value.trim();
+  var label = $('label').value.trim();
+  if (!key || !keyOK(key)) { alert('catalog_key is required and must match ^[A-Za-z0-9_-]+$'); return null; }
+  if (!type) { alert('type is required'); return null; }
+  if (!label) { alert('label is required'); return null; }
+
+  var payload = {
+    catalog_key: key,
+    type: type,
+    label: label,
+    required_def: toBool($('required_def').value),
+    placeholder: (function(v){ return v===''?null:v; })($('placeholder').value),
+    default_val: (function(v){ return v===''?null:v; })($('default_val').value),
+    min_val: numOrNull($('min_val').value),
+    max_val: numOrNull($('max_val').value),
+    pattern: (function(v){ return v===''?null:v; })($('pattern').value)
+  };
+  var opts = gatherOptions();
+  if (opts.length) payload.options = opts; // server stores under options_key=catalog_key
+  return payload;
+}
+
+function doSave(){
+  var payload = buildPayload();
+  if (!payload) return;
+  showStatus('Saving...');
+  apiPost('field_catalog_upsert', payload).then(function(r){
+    if (r.json && r.json.ok === true) {
+      showStatus('Saved', true);
+      // refresh list; keep selection
+      var keep = payload.catalog_key;
+      loadList().then(function(){ selectItem(keep); });
+    } else {
+      var msg = (r.json && (r.json.error||r.raw)) || r.raw || 'Save failed';
+      showStatus('Save failed', false);
+      alert(msg);
+      console.warn('upsert error:', r);
+    }
+  }).catch(function(err){
+    showStatus('Save error', false);
+    console.error(err);
+  });
+}
+
+function doDelete(){
+  var key = $('catalog_key').value.trim();
+  if (!key) { alert('No catalog_key to delete.'); return; }
+  if (!confirm('Delete catalog item "'+key+'"? This will remove it from the catalog.')) return;
+  showStatus('Deleting...');
+  // send both fields for maximum compatibility
+  apiPost('field_catalog_delete', { catalog_key:key, key:key }).then(function(r){
+    if (r.json && r.json.ok === true) {
+      showStatus('Deleted', true);
+      clearEditor();
+      loadList();
+    } else {
+      var msg = (r.json && (r.json.error||r.raw)) || r.raw || 'Delete failed';
+      showStatus('Delete failed', false);
+      alert(msg);
+      console.warn('delete error:', r);
+    }
+  }).catch(function(err){
+    showStatus('Delete error', false);
+    console.error(err);
+  });
+}
+
+// ===== WIRES =====
+$('btnRefresh').onclick = function(){ loadList(); };
+$('btnSearch').onclick  = function(){ renderList(); };
+$('q').oninput = function(){ renderList(); };
+
+$('btnNew').onclick = function(){ clearEditor(); $('catalog_key').focus(); };
+$('btnAddOpt').onclick = function(){ addOptRow('','',null); STATE.dirty=true; };
+$('btnRenumber').onclick = function(){
+  var rows = $('opts').querySelectorAll('tbody tr');
+  for (var i=0;i<rows.length;i++) rows[i].querySelector('.oo').value = (i+1);
+  STATE.dirty=true;
+};
+$('btnSort').onclick = function(){
+  var opts = gatherOptions();
+  var tb = $('opts').querySelector('tbody'); tb.innerHTML='';
+  for (var i=0;i<opts.length;i++) addOptRow(opts[i].value, opts[i].label, opts[i].ord);
+  STATE.dirty=false;
+};
+$('btnSave').onclick = doSave;
+$('btnDelete').onclick = doDelete;
+$('btnReset').onclick = function(){
+  if (!STATE.current) { clearEditor(); return; }
+  fillEditor(STATE.current);
+  showStatus('Reset', true);
+};
+
+// initial load
+loadList();
+</script>
+</body>
+</html>
